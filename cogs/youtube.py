@@ -11,7 +11,7 @@ class Youtube(commands.Cog):
 
     def __init__(self, client):
         self.client = client
-        self.players = {}
+        self.queue = []
 
     # A check to see if the user is a has the music role. Not currently in use.
     async def has_music(ctx):
@@ -19,20 +19,29 @@ class Youtube(commands.Cog):
 
     @commands.command(brief="Bot will join voice and play specified song")
     async def play(self, ctx, *, url):
+        song = await YTDLSource.from_url(url)
+        self.queue.append(song)
+        print(queue)
+
+
         channel = ctx.message.author.voice.channel
         await channel.connect()
 
         server = ctx.message.guild
         voice_channel = server.voice_client
-        #song = FFmpegAudio(url)
 
-        async with ctx.typing():
-            player = await YTDLSource.from_url(url)
-            voice_channel.play(player, after=lambda e: print('Player error: %s' % e) if e else None)
-        await ctx.send(f'Now playing: {player.title}')
+        while self.queue != []:
+            async with ctx.typing():
+                player = self.queue[0]
+                voice_channel.play(player, after=lambda e: print('Player error: %s' % e) if e else None)
+            await ctx.send(f'Now playing: {player.title}')
 
-        while voice_channel.is_playing():
-            await asyncio.sleep(1)
+            while voice_channel.is_playing():
+                await asyncio.sleep(1)
+            
+            await asyncio.sleep(3)
+
+
         await voice_channel.disconnect()
 
         await asyncio.sleep(5)
