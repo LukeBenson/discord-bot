@@ -13,9 +13,9 @@ class Youtube(commands.Cog):
         self.client = client
         self.queue = []
 
-    # A check to see if the user is a has the music role. Not currently in use.
-    async def has_music(ctx):
-        return ctx.guild.get_role(int(os.getenv('MUSIC_ROLE'))) in ctx.author.roles
+    # A check to see if the user is in a voice channel
+    async def in_voice(ctx):
+        return ctx.message.author.voice != None
 
     async def play_songs(self, ctx, voice_channel):
         while self.queue != []:
@@ -34,6 +34,7 @@ class Youtube(commands.Cog):
         await voice_channel.disconnect()
 
     @commands.command(brief="Bot will join voice and play specified song or queue song")
+    @commands.check(in_voice)
     async def play(self, ctx, *, url):
         song = await YTDLSource.from_url(url)
         self.queue.append(song)
@@ -55,6 +56,7 @@ class Youtube(commands.Cog):
         delete()
 
     @commands.command(brief="Stop music playing and remove bot from voice")
+    @commands.check(in_voice)
     async def stop(self, ctx):
         voice_channel = ctx.message.guild.voice_client
         voice_channel.stop()
@@ -65,20 +67,24 @@ class Youtube(commands.Cog):
         delete()
 
     @commands.command(brief="Pause music playing")
+    @commands.check(in_voice)
     async def pause(self, ctx):
         ctx.message.guild.voice_client.pause()
 
     @commands.command(brief="Resume paused music")
+    @commands.check(in_voice)
     async def resume(self, ctx):
         ctx.message.guild.voice_client.resume()
 
     @commands.command(brief="Show play queue")
+    @commands.check(in_voice)
     async def queue(self, ctx):
         songs = [ song.title for song in self.queue ]
         newline = "\r\n"
         await ctx.send(f'Play queue is: {newline}{newline.join(songs)}')
 
     @commands.command(brief="Skip the current song")
+    @commands.check(in_voice)
     async def skip(self, ctx):
         voice_channel = ctx.message.guild.voice_client
         voice_channel.stop()
