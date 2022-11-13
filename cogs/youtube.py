@@ -131,7 +131,7 @@ class YTDLSource(discord.PCMVolumeTransformer):
     @classmethod
     async def from_url(cls, url):
         loop = asyncio.get_event_loop()
-        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=True))
+        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
 
         if 'entries' in data:
             # take first item from a playlist

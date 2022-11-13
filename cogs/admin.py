@@ -79,5 +79,11 @@ class Admin(commands.Cog):
     async def logout(self, ctx):
         await self.client.close()
 
+    @commands.Cog.listener()
+    async def on_reaction_add(self, reaction, user):
+        if reaction.emoji == "📌":
+            owner = reaction.message.guild.owner
+            await owner.send(f"**{user}** wants to pin \r\n\r\n'{reaction.message.content}'\r\n\r\n This can be found at {reaction.message.jump_url}.")
+        
 def setup(client):
     client.add_cog(Admin(client))
