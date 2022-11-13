@@ -16,15 +16,19 @@ class Random(commands.Cog):
         emoji = [x for x in ctx.guild.emojis if x.name == emote]
         await ctx.channel.send(f"<:{emoji[0].name}:{emoji[0].id}>")
     
-    @commands.command(brief='roll a standard 6 sided dice')
-    async def roll(self, ctx):
+    @commands.command(brief='Roll some die, eg 2d12')
+    async def roll(self, ctx, roll: str):
+        num = int(roll.split('d')[0])
+        dice = int(roll.split('d')[-1])
+        results = [random.randint(1,dice) for i in range(num)]
+        total = sum(results)
         async with ctx.channel.typing():
             await asyncio.sleep(1)
-        await ctx.channel.send(f"{random.randint(1,6)}")
+        await ctx.channel.send(f"You rolled: {results} for a total of **{total}**")
 
-    @commands.command(brief='choose random item from a comma separated list')
+    @commands.command(brief='choose random item from a space separated list')
     async def random(self, ctx, *, input: str):
-        options = input.split(",")
+        options = input.split(" ")
         async with ctx.channel.typing():
             await asyncio.sleep(1)
         await ctx.channel.send(f"{random.choice(options)}")
